@@ -6,11 +6,13 @@ Feature: YouTube Music Playlist Management
 
     Scenario: Create a playlist with a valid name
         Given I have a Google account
+        And Execute login Scenario
         When I request to create a playlist with the name "DO ROCK"
         Then the playlist should be created successfully
 
     Scenario Outline: Do not allow playlist creation with an invalid name
         Given I have a Google account
+        And Execute login Scenario
         When I request to create a playlist with the name "<playlistName>"
         Then the system should reject the request
         And I should receive an error message indicating "<errorMessage>"
