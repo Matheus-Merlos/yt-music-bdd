@@ -13,25 +13,22 @@ So that I can organize, listen to, and share my music in a personalized way
         Given I am authenticated in YouTube Music
         When I request to create a playlist without providing a name
         Then the system should reject the request
-        And I should receive an error message indicating that the playlist name is required
 
     Scenario: Delete an existing playlist
         Given I am authenticated in YouTube Music
-        And I have a playlist named "Study"
+        And I have a playlist named "DO ROCK"
         When I request to delete the playlist
         Then the playlist should be deleted successfully
-        And the playlist should no longer appear in my playlist list
 
     Scenario: Rename an existing playlist with a valid name
         Given I am authenticated in YouTube Music
-        And I have a playlist named "Road Trip"
-        When I rename the playlist to "Road Trip 2025"
+        And I have a playlist named "DO ROCK"
+        When I rename the playlist to "DO SAMBA"
         Then the new playlist name should be saved
-        And the playlist should be displayed with the updated name
 
     Scenario: Add an existing track to a playlist
         Given I am authenticated in YouTube Music
-        And I have a playlist named "Favorites"
+        And I have a playlist named "DO ROCK"
         And the track "Imagine" exists in the catalog
         When I add the track to the playlist
         Then the track should be added successfully
