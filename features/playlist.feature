@@ -16,7 +16,7 @@ So that I can organize, listen to, and share my music in a personalized way
 
     Scenario: Create a playlist with a valid name
         Given I am authenticated in YouTube Music
-        When I request to create a playlist with the name "Fat Sounds"
+        When I request to create a playlist with the name "DO ROCK"
         Then the playlist should be created successfully
 
     Scenario Outline: Do not allow playlist creation with an invalid name
