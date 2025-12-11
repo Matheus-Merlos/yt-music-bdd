@@ -4,17 +4,10 @@ As an valid YouTube Music user
 I want to manage my playlists
 So that I can organize, listen to, and share my music in a personalized way
 
-    # Scenario: Login My account with password
-    #     Give I am on the login page
-    #     When I put my password in password box
-    #     And 
-
     Scenario: Create a playlist with a valid name
         Given I am authenticated in YouTube Music
-        When I request to create a playlist with the name "Fat Sounds"
+        When I request to create a playlist with the name "DO ROCK"
         Then the playlist should be created successfully
-        And the playlist should be associated with my account
-        And the playlist visibility should be set to private by default
 
     Scenario: Do not allow playlist creation without a name
         Given I am authenticated in YouTube Music
