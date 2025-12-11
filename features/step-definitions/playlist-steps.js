@@ -6,7 +6,7 @@ config();
 
 const TIMEOUT = 10000;
 
-const EMAIL = 'matheusmerlos@alunos.utfpr.edu.br'
+const EMAIL = process.env.EMAIL;
 const PASSWORD = process.env.PASSWORD;
 
 Given('I am authenticated in YouTube Music', { timeout: 30000 }, async function () {
