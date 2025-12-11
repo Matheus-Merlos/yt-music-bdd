@@ -2,7 +2,7 @@ Feature: YouTube Music Playlist Management
 
     As an valid YouTube Music user
     I want to manage my playlists
-    So that I can organize, listen to, and share my music in a personalized way
+    So that I can add/ remove musics, listen to, and share my music in a personalized way
 
     Scenario: Create a playlist with a valid name
         Given I have a Google account
