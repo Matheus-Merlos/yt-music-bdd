@@ -333,3 +333,86 @@ Then('the playlist should be visible to other users', { timeout: 30000 }, async 
 
     expect(await privacyLabel.isDisplayed()).to.be.true;
 });
+
+
+
+
+When('I add the track {string} to the playlist', { timeout: 40000 }, async function (trackName) {
+    const searchBox = await this.driver.wait(
+        until.elementLocated(By.tagName("ytmusic-search-box")),
+        TIMEOUT
+    );
+    await searchBox.click();
+
+    const searchInput = await this.driver.wait(
+        until.elementLocated(By.css("ytmusic-search-box input")),
+        TIMEOUT
+    );
+    await searchInput.sendKeys(Key.CONTROL, 'a'); 
+    await searchInput.sendKeys(Key.BACK_SPACE);
+    await searchInput.sendKeys(trackName, Key.RETURN);
+
+    await this.driver.sleep(2000);
+
+    const topResultMenuBtn = await this.driver.wait(
+        until.elementLocated(By.xpath("//ytmusic-card-shelf-renderer//ytmusic-menu-renderer//button")),
+        TIMEOUT
+    );
+    await topResultMenuBtn.click();
+    
+    await this.driver.sleep(1000); 
+
+    const addToPlaylistOption = await this.driver.wait(
+        until.elementLocated(By.xpath("//ytmusic-menu-popup-renderer//yt-formatted-string[contains(text(), 'Salvar na playlist')]")),
+        TIMEOUT
+    );
+    await addToPlaylistOption.click();
+
+    await this.driver.sleep(1000);
+
+    const targetPlaylistName = "DO ROCK"; 
+    
+    const playlistOption = await this.driver.wait(
+        until.elementLocated(By.xpath(`//ytmusic-add-to-playlist-renderer//yt-formatted-string[contains(text(), '${targetPlaylistName}')]`)),
+        TIMEOUT
+    );
+    await playlistOption.click();
+
+    await this.driver.sleep(2000);
+});
+
+Then('the track should be added successfully', { timeout: 30000 }, async function () {
+    const expectedText = "Salvo em DO ROCK";
+
+    const simpleXpath = `//tp-yt-paper-toast[contains(text(), '${expectedText}')]`;
+    const deepXpath = `//tp-yt-paper-toast[contains(., '${expectedText}')]`;
+    const genericXpath = `//*[contains(text(), '${expectedText}')]`;
+    const finalXpath = `${simpleXpath} | ${deepXpath} | ${genericXpath}`;
+
+    try {
+        const toastMessage = await this.driver.wait(
+            until.elementLocated(By.xpath(finalXpath)),
+            10000
+        );
+        
+        await this.driver.wait(until.elementIsVisible(toastMessage), 10000);
+        
+        const text = await toastMessage.getText();
+        expect(text).to.include("Salvo em DO ROCK");
+
+    } catch (error) {
+        const pageText = await this.driver.findElement(By.tagName('body')).getText();
+        
+        if (pageText.includes(expectedText)) {
+            return;
+        }
+
+        try {
+            const anyToast = await this.driver.findElement(By.css("tp-yt-paper-toast"));
+            const actualText = await anyToast.getText();
+            throw new Error(`Esperava '${expectedText}', mas o toast mostrava: '${actualText}'`);
+        } catch (e) {
+            throw new Error(`A mensagem '${expectedText}' não foi encontrada na tela.`);
+        }
+    }
+});

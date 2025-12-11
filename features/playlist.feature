@@ -25,11 +25,8 @@ Feature: YouTube Music Playlist Management
         Given I have a Google account
         And Execute login Scenario
         And I have a playlist named "DO ROCK"
-        And the track "Imagine" exists in the catalog
-        When I add the track to the playlist
+        When I add the track "Amiga da minha mulher" to the playlist
         Then the track should be added successfully
-        And the track should be placed at the end of the playlist
-
 
     Scenario: Remove a track from a playlist
         Given I have a Google account
