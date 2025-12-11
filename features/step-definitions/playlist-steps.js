@@ -43,7 +43,7 @@ Given('Execute login Scenario', { timeout: 30000 }, async function () {
 });
 
 
-When('I request to create a playlist with the name "DO ROCK"', { timeout: 30000 }, async function () {
+When('I request to create a playlist with the name {string}', { timeout: 30000 }, async function (playlistName) {
     const newPlaylistBtn = await this.driver.wait(
         until.elementLocated(By.xpath("//button[.//text()='Nova playlist']")),
         TIMEOUT
@@ -55,7 +55,7 @@ When('I request to create a playlist with the name "DO ROCK"', { timeout: 30000 
         until.elementLocated(By.css("ytmusic-playlist-form input")),
         TIMEOUT
     );
-    await playlistNameInput.sendKeys('DO ROCK')
+    await playlistNameInput.sendKeys(playlistName)
     
     await this.driver.sleep(2000);
 
@@ -79,33 +79,33 @@ Then('the playlist should be created successfully', { timeout: 30000 }, async fu
     expect(await playlistInSidebar.isDisplayed()).to.be.true;
 });
 
+Then('the system should reject the request with the message {string}', { timeout: 30000 }, async function (errorMessage) {
+    const containerXpath = `//tp-yt-paper-input-container//div[contains(text(), '${errorMessage}')]`;
+    const polymerErrorXpath = `//tp-yt-paper-input-error[contains(text(), '${errorMessage}')]`;
+    const toastXpath = `//tp-yt-paper-toast//*[contains(text(), '${errorMessage}')]`;
+    const finalXpath = `${containerXpath} | ${polymerErrorXpath} | ${toastXpath}`;
 
-When('I request to create a playlist without providing a name', { timeout: 30000 }, async function () {
-    const newPlaylistBtn = await this.driver.wait(
-        until.elementLocated(By.xpath("//button[.//text()='Nova playlist']")),
-        TIMEOUT
-    );
-    await newPlaylistBtn.click();
-    await this.driver.sleep(1000);
+    try {
+        const errorElement = await this.driver.wait(
+            until.elementLocated(By.xpath(finalXpath)),
+            TIMEOUT
+        );
+        
+        await this.driver.executeScript("arguments[0].scrollIntoView({block: 'center'});", errorElement);
+        
+        await this.driver.wait(until.elementIsVisible(errorElement), 5000);
+        
+        expect(await errorElement.isDisplayed()).to.be.true;
 
-    const createPlaylistBtn = await this.driver.wait(
-        until.elementLocated(By.xpath("//button[.//text()='Criar']")),
-        TIMEOUT
-    );
-    createPlaylistBtn.click();
+    } catch (error) {
+        const pageText = await this.driver.findElement(By.tagName('body')).getText();
+        
+        if (pageText.includes(errorMessage)) {
+            return;
+        }
 
-    await this.driver.sleep(2000);
-});
-
-Then('the system should reject the request', { timeout: 30000 }, async function () {
-    const rejectMessage = `//div[.//text()='Obrigatório']`;
-
-    const rejectMessageElement = await this.driver.wait(
-        until.elementLocated(By.xpath(rejectMessage)),
-        TIMEOUT
-    );
-
-    expect(await rejectMessageElement.isDisplayed()).to.be.true;
+        throw new Error(`A mensagem "${errorMessage}" não foi encontrada na tela.`);
+    }
 });
 
 Given('I have a playlist named "DO ROCK"', { timeout: 30000 }, async function () {
@@ -242,10 +242,9 @@ Given('The playlist is public', { timeout: 30000 }, async function () {
         TIMEOUT
     );
     await playlistInSidebar.click();
-    await this.driver.sleep(2000); // Espera carregar a página
+    await this.driver.sleep(2000);
 });
 
-// Mesma lógica do de cima, apenas para navegar até a playlist
 Given('The playlist is private', { timeout: 30000 }, async function () {
     const sidebarXpath = `//ytmusic-guide-renderer//yt-formatted-string[text()='DO ROCK']`;
     const playlistInSidebar = await this.driver.wait(
@@ -256,10 +255,8 @@ Given('The playlist is private', { timeout: 30000 }, async function () {
     await this.driver.sleep(2000);
 });
 
-// --- ACTIONS (WHEN) ---
 
 When('I change the playlist visibility to private', { timeout: 30000 }, async function () {
-    // 1. Clicar no botão Editar (Lápis)
     const editButton = await this.driver.wait(
         until.elementLocated(By.xpath("//button[@aria-label='Editar playlist' or @aria-label='Edit playlist']")),
         TIMEOUT
@@ -267,17 +264,13 @@ When('I change the playlist visibility to private', { timeout: 30000 }, async fu
     await editButton.click();
     await this.driver.sleep(1000);
 
-    // 2. Clicar no Dropdown de privacidade
-    // O dropdown fica dentro do form. Procuramos pelo elemento de menu dropdown.
     const dropdownTrigger = await this.driver.wait(
         until.elementLocated(By.css("ytmusic-playlist-form tp-yt-paper-dropdown-menu")),
         TIMEOUT
     );
     await dropdownTrigger.click();
-    await this.driver.sleep(1000); // Espera as opções aparecerem
+    await this.driver.sleep(1000);
 
-    // 3. Selecionar a opção "Particular" (Private)
-    // Em vez do XPath gigante, buscamos pelo TEXTO dentro da lista de opções
     const privateOption = await this.driver.wait(
         until.elementLocated(By.xpath("//tp-yt-paper-item[.//text()='Particular' or .//text()='Private']")),
         TIMEOUT
@@ -285,41 +278,6 @@ When('I change the playlist visibility to private', { timeout: 30000 }, async fu
     await privateOption.click();
     await this.driver.sleep(500);
 
-    // 4. Salvar
-    const saveButton = await this.driver.wait(
-        until.elementLocated(By.xpath("//button[.//text()='Salvar' or .//text()='Save']")),
-        TIMEOUT
-    );
-    await saveButton.click();
-    await this.driver.sleep(2000); // Espera o modal fechar e a página atualizar
-});
-
-When('I change the playlist visibility to public', { timeout: 30000 }, async function () {
-    // 1. Clicar no botão Editar
-    const editButton = await this.driver.wait(
-        until.elementLocated(By.xpath("//button[@aria-label='Editar playlist' or @aria-label='Edit playlist']")),
-        TIMEOUT
-    );
-    await editButton.click();
-    await this.driver.sleep(1000);
-
-    // 2. Abrir Dropdown
-    const dropdownTrigger = await this.driver.wait(
-        until.elementLocated(By.css("ytmusic-playlist-form tp-yt-paper-dropdown-menu")),
-        TIMEOUT
-    );
-    await dropdownTrigger.click();
-    await this.driver.sleep(1000);
-
-    // 3. Selecionar a opção "Pública" (Public)
-    const publicOption = await this.driver.wait(
-        until.elementLocated(By.xpath("//tp-yt-paper-item[.//text()='Pública' or .//text()='Public']")),
-        TIMEOUT
-    );
-    await publicOption.click();
-    await this.driver.sleep(500);
-
-    // 4. Salvar
     const saveButton = await this.driver.wait(
         until.elementLocated(By.xpath("//button[.//text()='Salvar' or .//text()='Save']")),
         TIMEOUT
@@ -328,11 +286,37 @@ When('I change the playlist visibility to public', { timeout: 30000 }, async fun
     await this.driver.sleep(2000);
 });
 
-// --- ASSERTIONS (THEN) ---
+When('I change the playlist visibility to public', { timeout: 30000 }, async function () {
+    const editButton = await this.driver.wait(
+        until.elementLocated(By.xpath("//button[@aria-label='Editar playlist' or @aria-label='Edit playlist']")),
+        TIMEOUT
+    );
+    await editButton.click();
+    await this.driver.sleep(1000);
+
+    const dropdownTrigger = await this.driver.wait(
+        until.elementLocated(By.css("ytmusic-playlist-form tp-yt-paper-dropdown-menu")),
+        TIMEOUT
+    );
+    await dropdownTrigger.click();
+    await this.driver.sleep(1000);
+
+    const publicOption = await this.driver.wait(
+        until.elementLocated(By.xpath("//tp-yt-paper-item[.//text()='Pública' or .//text()='Public']")),
+        TIMEOUT
+    );
+    await publicOption.click();
+    await this.driver.sleep(500);
+
+    const saveButton = await this.driver.wait(
+        until.elementLocated(By.xpath("//button[.//text()='Salvar' or .//text()='Save']")),
+        TIMEOUT
+    );
+    await saveButton.click();
+    await this.driver.sleep(2000);
+});
 
 Then('the playlist should no longer be visible to other users', { timeout: 30000 }, async function () {
-    // Verifica se aparece "Particular" no cabeçalho
-    // Estamos procurando no header da playlist a palavra "Particular"
     const privacyLabel = await this.driver.wait(
         until.elementLocated(By.xpath("//ytmusic-responsive-header-renderer//*[contains(text(), 'Particular') or contains(text(), 'Private')]")),
         TIMEOUT
@@ -342,7 +326,6 @@ Then('the playlist should no longer be visible to other users', { timeout: 30000
 });
 
 Then('the playlist should be visible to other users', { timeout: 30000 }, async function () {
-    // Verifica se aparece "Pública" no cabeçalho
     const privacyLabel = await this.driver.wait(
         until.elementLocated(By.xpath("//ytmusic-responsive-header-renderer//*[contains(text(), 'Pública') or contains(text(), 'Public')]")),
         TIMEOUT

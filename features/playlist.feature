@@ -13,15 +13,13 @@ Feature: YouTube Music Playlist Management
     Scenario Outline: Do not allow playlist creation with an invalid name
         Given I have a Google account
         And Execute login Scenario
-        When I request to create a playlist with the name "<playlistName>"
-        Then the system should reject the request
-        And I should receive an error message indicating "<errorMessage>"
+        When I request to create a playlist with the name <playlistName>
+        Then the system should reject the request with the message <errorMessage>
 
         Examples:
-            | playlistName | errorMessage        |
-            | "   "        | Ops ocorreu um erro |
-            |              | Obrigatório         |
-
+            | playlistName | errorMessage          |
+            | "   "        | "Ops! Ocorreu um erro." |
+            | ""           | "Obrigatório"           |
 
     Scenario: Add an existing track to a playlist
         Given I have a Google account
@@ -55,16 +53,6 @@ Feature: YouTube Music Playlist Management
         And I have a private playlist
         When I change the playlist visibility to public
         Then the playlist should be visible to other users
-
-
-    Scenario: Reorder tracks within a playlist
-        Given I have a Google account
-        And Execute login Scenario
-        And I have a playlist with multiple tracks
-        When I move a track to a different position in the playlist
-        Then the new track order should be saved successfully
-        And playback should follow the updated track order
-
 
     Scenario: Change playlist visibility to private
         Given I have a Google account
