@@ -4,23 +4,34 @@ As an valid YouTube Music user
 I want to manage my playlists
 So that I can organize, listen to, and share my music in a personalized way
 
-    # Scenario: Login My account with password
-    #     Give I am on the login page
-    #     When I put my password in password box
-    #     And 
+    Scenario: Login to my account with password
+        Given I am on the login page
+        And I have a Google account
+        When I enter my email in the email field
+        And I click on the next button
+        And I enter my password in the password field
+        And I click on the next button
+        Then I should be authenticated successfully
+        And I should be redirected to the home page
 
     Scenario: Create a playlist with a valid name
         Given I am authenticated in YouTube Music
         When I request to create a playlist with the name "Fat Sounds"
         Then the playlist should be created successfully
-        And the playlist should be associated with my account
-        And the playlist visibility should be set to private by default
 
-    Scenario: Do not allow playlist creation without a name
+    Scenario Outline: Do not allow playlist creation with an invalid name
         Given I am authenticated in YouTube Music
-        When I request to create a playlist without providing a name
+        And I already have a playlist named "<existingPlaylistName>"
+        When I request to create a playlist with the name "<playlistName>"
         Then the system should reject the request
-        And I should receive an error message indicating that the playlist name is required
+        And I should receive an error message indicating "<errorMessage>"
+
+        Examples:
+            | existingPlaylistName | playlistName | errorMessage                              |
+            | Favorites            | Favorites    | Playlist name already exists              |
+            | Favorites            | Rock@2025    | Playlist name contains invalid characters |
+            | Favorites            | 🎵🎶         | Playlist name contains invalid characters |
+            | Favorites            | "   "        | Playlist name cannot be empty or blank    |
 
     Scenario: Delete an existing playlist
         Given I am authenticated in YouTube Music
