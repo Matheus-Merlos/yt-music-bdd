@@ -111,8 +111,19 @@ Given('I have a playlist named "DO ROCK"', { timeout: 30000 }, async function ()
     expect(await playlistInSidebar.isDisplayed()).to.be.true;
 });
 
+Given('I have a playlist named "DO SAMBA"', { timeout: 30000 }, async function () {
+    const sidebarXpath = `//ytmusic-guide-renderer//yt-formatted-string[text()='DO SAMBA']`;
+
+    const playlistInSidebar = await this.driver.wait(
+        until.elementLocated(By.xpath(sidebarXpath)),
+        TIMEOUT
+    );
+
+    expect(await playlistInSidebar.isDisplayed()).to.be.true;
+});
+
 When('I request to delete the playlist', { timeout: 30000 }, async function () {
-    const sidebarXpath = `//ytmusic-guide-renderer//yt-formatted-string[text()='DO ROCK']`;
+    const sidebarXpath = `//ytmusic-guide-renderer//yt-formatted-string[text()='DO SAMBA']`;
 
     const playlistInSidebar = await this.driver.wait(
         until.elementLocated(By.xpath(sidebarXpath)),
@@ -151,7 +162,7 @@ When('I request to delete the playlist', { timeout: 30000 }, async function () {
 });
 
 Then('the playlist should no longer appear in my playlist list', { timeout: 30000 }, async function () {
-    const sidebarXpath = `//ytmusic-guide-renderer//yt-formatted-string[text()='DO ROCK']`;
+    const sidebarXpath = `//ytmusic-guide-renderer//yt-formatted-string[text()='DO SAMBA']`;
 
     await this.driver.wait(async () => {
         const elements = await this.driver.findElements(By.xpath(sidebarXpath));

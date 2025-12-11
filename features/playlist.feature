@@ -9,24 +9,12 @@ So that I can organize, listen to, and share my music in a personalized way
         When I request to create a playlist with the name "DO ROCK"
         Then the playlist should be created successfully
 
-    Scenario Outline: Do not allow playlist creation with an invalid name
+    Scenario: Do not allow playlist creation with an invalid name
         Given I am authenticated in YouTube Music
-        And I already have a playlist named "<existingPlaylistName>"
-        When I request to create a playlist with the name "<playlistName>"
+        When I request to create a playlist without providing a name
         Then the system should reject the request
 
-    Scenario: Delete an existing playlist
-        Given I am authenticated in YouTube Music
-        And I have a playlist named "DO ROCK"
-        When I request to delete the playlist
-        Then the playlist should be deleted successfully
-
-    Scenario: Rename an existing playlist with a valid name
-        Given I am authenticated in YouTube Music
-        And I have a playlist named "DO ROCK"
-        When I rename the playlist to "DO SAMBA"
-        Then the new playlist name should be saved
-
+    
     Scenario: Add an existing track to a playlist
         Given I am authenticated in YouTube Music
         And I have a playlist named "DO ROCK"
@@ -65,3 +53,16 @@ So that I can organize, listen to, and share my music in a personalized way
         When I move a track to a different position in the playlist
         Then the new track order should be saved successfully
         And playback should follow the updated track order
+
+
+    Scenario: Rename an existing playlist with a valid name
+        Given I am authenticated in YouTube Music
+        And I have a playlist named "DO ROCK"
+        When I rename the playlist to "DO SAMBA"
+        Then the new playlist name should be saved
+
+    Scenario: Delete an existing playlist
+        Given I am authenticated in YouTube Music
+        And I have a playlist named "DO SAMBA"
+        When I request to delete the playlist
+        Then the playlist should no longer appear in my playlist list
